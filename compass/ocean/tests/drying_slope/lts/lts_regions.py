@@ -42,7 +42,7 @@ class LTSRegions(Step):
         """
         super().__init__(test_case, name=name, subdir=subdir)
 
-        for file in ['lts_mesh.nc', 'lts_graph.info', 'lts_init.nc']:
+        for file in ['lts_mesh.nc', 'lts_graph.info', 'lts_ocean.nc']:
             self.add_output_file(filename=file)
 
         self.init_step = init_step
