@@ -66,7 +66,7 @@ class Default(TestCase):
             self.add_step(Forward(test_case=self, resolution=resolution,
                                   use_lts=use_lts,
                                   ntasks=4, openmp_threads=1,
-                                  coord_type=coord_type, use_lts=use_lts))
+                                  coord_type=coord_type))
             damping_coeffs = None
         else:
             damping_coeffs = [0.0025, 0.01]
