@@ -94,7 +94,7 @@ def label_mesh(init, mesh, graph_info, num_interface,  # noqa: C901
     # check each cell, if in the fine region, label as fine
     logger.info('Labeling fine cells...')
     for icell in range(0, n_cells):
-        if y_cell[icell] > 13423.4:
+        if y_cell[icell] > 15877.1:
             lts_rgn[icell] = 1
 
     # first layer of cells with label 5
