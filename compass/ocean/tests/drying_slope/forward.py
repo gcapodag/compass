@@ -75,7 +75,7 @@ class Forward(Step):
 
         if use_lts:
             self.add_namelist_options(
-                {'config_time_integrator': "LTS"})
+                {'config_time_integrator': "'LTS'"})
             self.add_namelist_options(
                 {'config_dt_scaling_LTS': "4"})
             self.add_namelist_options(
