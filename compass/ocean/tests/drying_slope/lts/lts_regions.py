@@ -42,7 +42,7 @@ class LTSRegions(Step):
         """
         super().__init__(test_case, name=name, subdir=subdir)
 
-        for file in ['lts_mesh.nc', 'lts_graph.info']:
+        for file in ['lts_mesh.nc', 'lts_graph.info', 'lts_init.nc']:
             self.add_output_file(filename=file)
 
         self.init_step = init_step
@@ -61,18 +61,22 @@ class LTSRegions(Step):
         tgt2 = os.path.join(init_path, 'culled_graph.info')
         self.add_input_file(filename='culled_graph.info', work_dir_target=tgt2)
 
+        tgt3 = os.path.join(init_path, 'ocean.nc')
+        self.add_input_file(filename='ocean.nc', work_dir_target=tgt3)
+
     def run(self):
         """
         Run this step of the test case
         """
 
         use_progress_bar = self.log_filename is None
-        label_mesh(mesh='culled_mesh.nc',
+        label_mesh(init='ocean.nc',
+                   mesh='culled_mesh.nc',
                    graph_info='culled_graph.info', num_interface=2,
                    logger=self.logger, use_progress_bar=use_progress_bar)
 
 
-def label_mesh(mesh, graph_info, num_interface,  # noqa: C901
+def label_mesh(init, mesh, graph_info, num_interface,  # noqa: C901
                logger, use_progress_bar):
 
     # read in mesh data
@@ -233,12 +237,34 @@ def label_mesh(mesh, graph_info, num_interface,  # noqa: C901
     except KeyError:
         # create new variable
         ncells_NC = mshnc.dimensions['nCells'].name
-        lts_rgns_NC = mshnc.createVariable('LTSRegion', np.int32, (ncells_NC,))
+        lts_rgn_NC = mshnc.createVariable('LTSRegion', np.int32, (ncells_NC,))
 
         # set new variable
-        lts_rgns_NC[:] = lts_rgn[:]
+        lts_rgn_NC[:] = lts_rgn[:]
 
     mshnc.close()
+
+    # open init nc file to be copied
+
+    ds_init = xr.open_dataset(init)
+    ds_ltsinit = ds_init.copy(deep=True)
+    ltsinit_name = 'lts_ocean.nc'
+    write_netcdf(ds_ltsinit, ltsinit_name)
+    initnc = nc.Dataset(ltsinit_name, 'a', format='NETCDF4_64BIT_OFFSET')
+
+    try:
+        # try to get LTSRegion and assign new value
+        lts_rgn_NC = initnc.variables['LTSRegion']
+        lts_rgn_NC[:] = lts_rgn[:]
+    except KeyError:
+        # create new variable
+        ncells_NC = initnc.dimensions['nCells'].name
+        lts_rgn_NC = initnc.createVariable('LTSRegion', np.int32, (ncells_NC,))
+
+        # set new variable
+        lts_rgn_NC[:] = lts_rgn[:]
+
+    initnc.close()
 
     extract_vtk(ignore_time=True, lonlat=0,
                 dimension_list=['maxEdges='],

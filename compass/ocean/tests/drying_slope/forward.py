@@ -89,20 +89,25 @@ class Forward(Step):
                                   'streams.forward')
 
         if use_lts:
-            input_path = '../initial_state/lts_regions'
+            input_path = '../lts_regions'
+            self.add_input_file(filename='mesh.nc',
+                                target=f'{input_path}/lts_mesh.nc')
+            self.add_input_file(filename='graph.info',
+                                target=f'{input_path}/lts_graph.info')
+            self.add_input_file(filename='init.nc',
+                                target=f'{input_path}/lts_ocean.nc')
         else:
             input_path = '../initial_state'
-        self.add_input_file(filename='mesh.nc',
-                            target=f'{input_path}/culled_mesh.nc')
+            self.add_input_file(filename='mesh.nc',
+                                target=f'{input_path}/culled_mesh.nc')
+            self.add_input_file(filename='graph.info',
+                                target=f'{input_path}/culled_graph.info')
+            self.add_input_file(filename='init.nc',
+                                target=f'{input_path}/ocean.nc')
 
-        self.add_input_file(filename='init.nc',
-                            target=f'{input_path}/ocean.nc')
-
+        data_path = '../initial_state'
         self.add_input_file(filename='forcing.nc',
-                            target=f'{input_path}/init_mode_forcing_data.nc')
-
-        self.add_input_file(filename='graph.info',
-                            target=f'{input_path}/culled_graph.info')
+                            target=f'{data_path}/init_mode_forcing_data.nc')
 
         self.add_model_as_input()
 
