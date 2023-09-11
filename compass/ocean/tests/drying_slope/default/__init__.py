@@ -1,7 +1,8 @@
-from compass.testcase import TestCase
-from compass.ocean.tests.drying_slope.initial_state import InitialState
 from compass.ocean.tests.drying_slope.forward import Forward
+from compass.ocean.tests.drying_slope.initial_state import InitialState
+from compass.ocean.tests.drying_slope.lts.lts_regions import LTSRegions
 from compass.ocean.tests.drying_slope.viz import Viz
+from compass.testcase import TestCase
 from compass.validate import compare_variables
 
 
@@ -16,9 +17,12 @@ class Default(TestCase):
 
     coord_type : str
         The type of vertical coordinate (``sigma``, ``single_layer``, etc.)
+
+    use_lts : bool
+        Whether local time-stepping is used
     """
 
-    def __init__(self, test_group, resolution, coord_type):
+    def __init__(self, test_group, resolution, coord_type, use_lts):
         """
         Create the test case
 
@@ -32,11 +36,19 @@ class Default(TestCase):
 
         coord_type : str
             The type of vertical coordinate (``sigma``, ``single_layer``)
-        """
-        name = 'default'
 
+        use_lts : bool
+            Whether local time-stepping is used
+        """
         self.resolution = resolution
         self.coord_type = coord_type
+        self.use_lts = use_lts
+
+        if use_lts:
+            name = 'default_lts'
+        else:
+            name = 'default'
+
         if resolution < 1.:
             res_name = f'{int(resolution*1e3)}m'
         else:
@@ -44,16 +56,23 @@ class Default(TestCase):
         subdir = f'{res_name}/{coord_type}/{name}'
         super().__init__(test_group=test_group, name=name,
                          subdir=subdir)
-        self.add_step(InitialState(test_case=self, coord_type=coord_type))
+        init_step = InitialState(test_case=self, coord_type=coord_type)
+        self.add_step(init_step)
+
+        if use_lts:
+            self.add_step(LTSRegions(test_case=self, init_step=init_step))
+
         if coord_type == 'single_layer':
             self.add_step(Forward(test_case=self, resolution=resolution,
+                                  use_lts=use_lts,
                                   ntasks=4, openmp_threads=1,
-                                  coord_type=coord_type))
+                                  coord_type=coord_type, use_lts=use_lts))
             damping_coeffs = None
         else:
             damping_coeffs = [0.0025, 0.01]
             for damping_coeff in damping_coeffs:
                 self.add_step(Forward(test_case=self, resolution=resolution,
+                                      use_lts=use_lts,
                                       ntasks=4, openmp_threads=1,
                                       damping_coeff=damping_coeff,
                                       coord_type=coord_type))

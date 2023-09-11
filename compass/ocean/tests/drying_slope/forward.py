@@ -7,8 +7,8 @@ class Forward(Step):
     A step for performing forward MPAS-Ocean runs as part of drying slope
     test cases.
     """
-    def __init__(self, test_case, resolution, name='forward', subdir=None,
-                 ntasks=1, min_tasks=None, openmp_threads=1,
+    def __init__(self, test_case, resolution, use_lts, name='forward',
+                 subdir=None, ntasks=1, min_tasks=None, openmp_threads=1,
                  damping_coeff=None, coord_type='sigma'):
         """
         Create a new test case
@@ -20,6 +20,9 @@ class Forward(Step):
 
         resolution : float
             The resolution of the test case
+
+        use_lts : bool
+            whether local time-stepping is used
 
         name : str
             the name of the test case
@@ -70,10 +73,25 @@ class Forward(Step):
             options = {'config_Rayleigh_damping_coeff': f'{damping_coeff}'}
             self.add_namelist_options(options)
 
-        self.add_streams_file('compass.ocean.tests.drying_slope',
-                              'streams.forward')
+        if use_lts:
+            self.add_namelist_options(
+                {'config_time_integrator': "LTS"})
+            self.add_namelist_options(
+                {'config_dt_scaling_LTS': "4"})
+            self.add_namelist_options(
+                {'config_number_of_time_levels': "4"})
 
-        input_path = '../initial_state'
+            self.add_streams_file('compass.ocean.tests.drying_slope.lts',
+                                  'streams.forward')
+
+        else:
+            self.add_streams_file('compass.ocean.tests.drying_slope',
+                                  'streams.forward')
+
+        if use_lts:
+            input_path = '../initial_state/lts_regions'
+        else:
+            input_path = '../initial_state'
         self.add_input_file(filename='mesh.nc',
                             target=f'{input_path}/culled_mesh.nc')
 

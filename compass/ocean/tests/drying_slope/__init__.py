@@ -18,12 +18,13 @@ class DryingSlope(TestGroup):
 
         for resolution in [0.25, 1.]:
             for coord_type in ['sigma', 'single_layer']:
-                self.add_test_case(
-                    Default(test_group=self, resolution=resolution,
-                            coord_type=coord_type))
-                self.add_test_case(
-                    Ramp(test_group=self, resolution=resolution,
-                         coord_type=coord_type))
-                self.add_test_case(
-                    LogLaw(test_group=self, resolution=resolution,
-                           coord_type=coord_type))
+                for use_lts in [False, True]:
+                    self.add_test_case(
+                        Default(test_group=self, resolution=resolution,
+                                coord_type=coord_type, use_lts=use_lts))
+                    self.add_test_case(
+                        Ramp(test_group=self, resolution=resolution,
+                             coord_type=coord_type, use_lts=use_lts))
+                    self.add_test_case(
+                        LogLaw(test_group=self, resolution=resolution,
+                               coord_type=coord_type, use_lts=use_lts))
