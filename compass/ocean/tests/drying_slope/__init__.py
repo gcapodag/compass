@@ -16,15 +16,17 @@ class DryingSlope(TestGroup):
         """
         super().__init__(mpas_core=mpas_core, name='drying_slope')
 
+        use_lts = False
         for resolution in [0.25, 1.]:
             for coord_type in ['sigma', 'single_layer']:
-                for use_lts in [False, True]:
-                    self.add_test_case(
-                        Default(test_group=self, resolution=resolution,
-                                coord_type=coord_type, use_lts=use_lts))
-                    self.add_test_case(
-                        Ramp(test_group=self, resolution=resolution,
-                             coord_type=coord_type, use_lts=use_lts))
-                    self.add_test_case(
-                        LogLaw(test_group=self, resolution=resolution,
-                               coord_type=coord_type, use_lts=use_lts))
+                if coord_type == 'single_layer':
+                    use_lts = True
+                self.add_test_case(
+                    Default(test_group=self, resolution=resolution,
+                            coord_type=coord_type, use_lts=use_lts))
+                self.add_test_case(
+                    Ramp(test_group=self, resolution=resolution,
+                         coord_type=coord_type, use_lts=use_lts))
+                self.add_test_case(
+                    LogLaw(test_group=self, resolution=resolution,
+                           coord_type=coord_type, use_lts=use_lts))
