@@ -1,4 +1,5 @@
 import os
+
 from mpas_tools.config import MpasConfigParser
 
 
@@ -14,8 +15,17 @@ class CompassConfigParser(MpasConfigParser):
     certain paths are absolute, rather than relative.
     """
 
-    def combine(self):
-        super().combine()
+    def combine(self, raw=False):
+        """
+        Combine the config files into one
+
+        Parameters
+        ----------
+        raw : bool, optional
+            Whether to combine config "raw" config options, rather than using
+            extended interpolation
+        """
+        super().combine(raw=raw)
         self._ensure_absolute_paths()
 
     def _ensure_absolute_paths(self):
@@ -28,5 +38,8 @@ class CompassConfigParser(MpasConfigParser):
             if not config.has_section(section):
                 continue
             for option, value in config.items(section):
-                value = os.path.abspath(value)
-                config.set(section, option, value)
+                # not safe to make paths that start with other config options
+                # into absolute paths
+                if not value.startswith('$'):
+                    value = os.path.abspath(value)
+                    config.set(section, option, value)
