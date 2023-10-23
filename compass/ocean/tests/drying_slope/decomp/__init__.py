@@ -1,6 +1,7 @@
 from compass.ocean.tests import drying_slope
 from compass.ocean.tests.drying_slope.forward import Forward
 from compass.ocean.tests.drying_slope.initial_state import InitialState
+from compass.ocean.tests.drying_slope.lts.lts_regions import LTSRegions
 from compass.testcase import TestCase
 from compass.validate import compare_variables
 
@@ -14,9 +15,12 @@ class Decomp(TestCase):
     ----------
     resolution : str
         The resolution of the test case
+
+    use_lts : bool
+        Whether local time-stepping is used
     """
 
-    def __init__(self, test_group, resolution, coord_type):
+    def __init__(self, test_group, resolution, coord_type, use_lts):
         """
         Create the test case
 
@@ -27,10 +31,20 @@ class Decomp(TestCase):
 
         resolution : str
             The resolution of the test case
+
+        use_lts : bool
+            Whether local time-stepping is used
         """
         name = 'decomp'
         self.resolution = resolution
         self.coord_type = coord_type
+        self.use_lts = use_lts
+
+        if use_lts:
+            name = 'decomp_lts'
+        else:
+            name = 'decomp'
+
         if resolution < 1.:
             res_name = f'{int(resolution*1e3)}m'
         else:
@@ -39,7 +53,12 @@ class Decomp(TestCase):
         super().__init__(test_group=test_group, name=name,
                          subdir=subdir)
 
-        self.add_step(InitialState(test_case=self, coord_type=coord_type))
+        init_step = InitialState(test_case=self, coord_type=coord_type)
+        self.add_step(init_step)
+
+        if use_lts:
+            self.add_step(LTSRegions(test_case=self, init_step=init_step))
+
         if coord_type == 'single_layer':
             damping_coeff = None
         else:
@@ -47,6 +66,7 @@ class Decomp(TestCase):
         for procs in [1, 12]:
             name = '{}proc'.format(procs)
             forward_step = Forward(test_case=self, name=name, subdir=name,
+                                   use_lts=use_lts,
                                    resolution=resolution,
                                    ntasks=procs, openmp_threads=1,
                                    damping_coeff=damping_coeff,

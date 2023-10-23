@@ -80,8 +80,6 @@ class Forward(Step):
                 {'config_dt_scaling_LTS': "4"})
             self.add_namelist_options(
                 {'config_number_of_time_levels': "4"})
-            self.add_namelist_options(
-                {'config_drying_min_cell_height': "1.0e-4"})
 
             self.add_streams_file('compass.ocean.tests.drying_slope.lts',
                                   'streams.forward')
