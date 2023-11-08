@@ -65,12 +65,6 @@ class Forward(Step):
 
             self.add_streams_file('compass.ocean.tests.dam_break.lts',
                                   'streams.forward')
-
-        else:
-            self.add_streams_file('compass.ocean.tests.dam_break',
-                                  'streams.forward')
-
-        if use_lts:
             input_path = '../lts_regions'
             self.add_input_file(filename='mesh.nc',
                                 target=f'{input_path}/lts_mesh.nc')
@@ -80,6 +74,8 @@ class Forward(Step):
                                 target=f'{input_path}/lts_ocean.nc')
 
         else:
+            self.add_streams_file('compass.ocean.tests.dam_break',
+                                  'streams.forward')
             input_path = '../initial_state'
             self.add_input_file(filename='mesh.nc',
                                 target=f'{input_path}/culled_mesh.nc')
