@@ -64,7 +64,7 @@ class Forward(Step):
                 {'config_number_of_time_levels': "4"})
             self.add_streams_file('compass.ocean.tests.parabolic_bowl.lts',
                                   'streams.forward')
-            input_path = '../lts_regions'
+            input_path = f'../lts_regions_{res_name}'
             self.add_input_file(filename='mesh.nc',
                                 target=f'{input_path}/lts_mesh.nc')
             self.add_input_file(filename='graph.info',

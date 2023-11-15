@@ -142,10 +142,10 @@ class Default(TestCase):
                                      wetdry=self.wetdry)
             self.add_step(init_step)
             if use_lts:
-                init_path = '../initial_state_' + f'{res_name}'
                 self.add_step(LTSRegions(test_case=self,
                                          init_step=init_step,
-                                         init_path=f'{init_path}'))
+                                         name=f'lts_regions_{res_name}',
+                                         subdir=f'lts_regions_{res_name}'))
             self.add_step(Forward(test_case=self,
                                   name=f'forward_{res_name}',
                                   use_lts=use_lts,

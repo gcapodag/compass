@@ -20,7 +20,7 @@ class LTSRegions(Step):
         compass.ocean.tests.dam_break.initial_state.InitialState
         The initial step containing input files to this step
     """
-    def __init__(self, test_case, init_step, init_path,
+    def __init__(self, test_case, init_step,
                  name='lts_regions', subdir='lts_regions'):
         """
         Create a new step
@@ -46,7 +46,6 @@ class LTSRegions(Step):
             self.add_output_file(filename=file)
 
         self.init_step = init_step
-        self.init_path = init_path
 
     def setup(self):
         """
@@ -55,7 +54,7 @@ class LTSRegions(Step):
         """
         super().setup()
 
-        init_path = self.init_path
+        init_path = self.init_step.path
         tgt1 = os.path.join(init_path, 'culled_mesh.nc')
         self.add_input_file(filename='culled_mesh.nc', work_dir_target=tgt1)
 
@@ -96,8 +95,10 @@ def label_mesh(init, mesh, graph_info, num_interface,  # noqa: C901
     # check each cell, if in the fine region, label as fine
     logger.info('Labeling fine cells...')
     for icell in range(0, n_cells):
-        radius = np.sqrt(x_cell[icell] ** 2 + y_cell[icell] ** 2)
-        if radius <= 200.0:
+        xC = 745000.0
+        yC = 701480.577065
+        radius = np.sqrt((x_cell[icell] - xC) ** 2 + (y_cell[icell] - yC) ** 2)
+        if radius <= 192500.0:
             lts_rgn[icell] = 1
 
     # first layer of cells with label 5
